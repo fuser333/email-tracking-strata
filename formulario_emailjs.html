@@ -214,7 +214,7 @@
                 <small>Valor: $239.88/año • Acceso completo a Strata</small>
             </div>
 
-            <form id="embajadorForm">
+            <form id="embajadorForm" onsubmit="return false;">
                 <div class="form-group">
                     <label>Nombre completo <span class="required">*</span></label>
                     <input type="text" id="nombre" name="nombre" required placeholder="Ej: Ing. Carlos Mendoza García">
@@ -349,12 +349,16 @@
         const urlParams = new URLSearchParams(window.location.search);
         const trackingId = urlParams.get('id') || 'direct_' + Date.now();
 
-        // Inicializar EmailJS
-        emailjs.init(EMAILJS_PUBLIC_KEY);
+        // Esperar a que el DOM esté completamente cargado
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inicializar EmailJS
+            emailjs.init(EMAILJS_PUBLIC_KEY);
+            console.log('✅ EmailJS inicializado con Public Key:', EMAILJS_PUBLIC_KEY);
 
-        // Manejar envío del formulario
-        document.getElementById('embajadorForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
+            // Manejar envío del formulario
+            document.getElementById('embajadorForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                e.stopPropagation();
 
             const submitBtn = document.getElementById('submitBtn');
             const btnText = document.getElementById('btnText');
@@ -428,6 +432,7 @@
                 btnText.innerHTML = '🚀 Activar Mi Cuenta de Embajador';
             }
         });
+        }); // Fin DOMContentLoaded
     </script>
 </body>
 </html>
