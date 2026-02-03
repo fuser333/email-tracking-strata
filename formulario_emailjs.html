@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario Embajador Strata</title>
+
+    <!-- EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #3B82F6 0%, #A855F7 50%, #DB2777 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+            animation: slideUp 0.5s ease-out;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .logo { text-align: center; margin-bottom: 30px; }
+        .logo h1 {
+            font-size: 48px;
+            font-weight: 800;
+            background: linear-gradient(to right, #3B82F6, #A855F7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -1px;
+        }
+        .logo p { color: #666; font-size: 14px; margin-top: 8px; text-transform: uppercase; letter-spacing: 1.5px; }
+        h2 { color: #333; font-size: 24px; margin-bottom: 10px; text-align: center; }
+        .subtitle { color: #666; text-align: center; margin-bottom: 30px; font-size: 15px; line-height: 1.6; }
+        .highlight-box {
+            background: linear-gradient(135deg, #A855F7, #DB2777);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .highlight-box h3 { font-size: 18px; margin-bottom: 10px; }
+        .highlight-box p { font-size: 32px; font-weight: bold; margin: 10px 0; }
+        .highlight-box small { font-size: 13px; opacity: 0.9; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; color: #333; font-weight: 600; margin-bottom: 8px; font-size: 14px; }
+        label .required { color: #DB2777; }
+        input, select, textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        textarea { resize: vertical; min-height: 100px; }
+        .checkbox-group {
+            display: flex;
+            align-items: start;
+            gap: 12px;
+            margin-top: 20px;
+            padding: 16px;
+            background: #f9fafb;
+            border-radius: 8px;
+        }
+        .checkbox-group input[type="checkbox"] { width: auto; margin-top: 2px; cursor: pointer; }
+        .checkbox-group label { margin: 0; font-weight: 400; font-size: 13px; color: #666; line-height: 1.6; cursor: pointer; }
+        button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #F97316, #DB2777);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+        button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(249, 115, 22, 0.3); }
+        button:active:not(:disabled) { transform: translateY(0); }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spinner 0.6s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        @keyframes spinner {
+            to { transform: rotate(360deg); }
+        }
+        .hidden { display: none !important; }
+        .success-screen {
+            text-align: center;
+            padding: 20px;
+        }
+        .success-screen .checkmark {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 30px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #059669, #10B981);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: scaleIn 0.5s ease-out;
+        }
+        @keyframes scaleIn {
+            from { transform: scale(0); }
+            to { transform: scale(1); }
+        }
+        .success-screen .checkmark svg {
+            width: 50px;
+            height: 50px;
+            stroke: white;
+            stroke-width: 3;
+            fill: none;
+            stroke-dasharray: 50;
+            stroke-dashoffset: 50;
+            animation: draw 0.5s ease-out 0.3s forwards;
+        }
+        @keyframes draw {
+            to { stroke-dashoffset: 0; }
+        }
+        .success-screen h3 {
+            color: #059669;
+            font-size: 28px;
+            margin-bottom: 16px;
+        }
+        .success-screen p {
+            color: #666;
+            line-height: 1.8;
+            font-size: 15px;
+            margin-bottom: 12px;
+        }
+        .success-screen .credentials-box {
+            background: #fef3c7;
+            border: 2px solid #F59E0B;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: left;
+        }
+        .success-screen .credentials-box h4 {
+            color: #92400E;
+            font-size: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .success-screen .credentials-box p {
+            color: #92400E;
+            margin: 0;
+        }
+        .error-message {
+            background: #FEE2E2;
+            border: 2px solid #EF4444;
+            border-radius: 8px;
+            padding: 16px;
+            color: #991B1B;
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>STRATA</h1>
+            <p>Programa Embajadores</p>
+        </div>
+
+        <!-- FORMULARIO -->
+        <div id="formulario">
+            <h2>¡Felicidades! 🎉</h2>
+            <p class="subtitle">
+                Has sido seleccionado para ser <strong>Embajador Oficial de Strata</strong>.
+                Completa tus datos para activar tu cuenta gratuita.
+            </p>
+
+            <div class="highlight-box">
+                <h3>🎁 Tu Beneficio como Embajador</h3>
+                <p>Plan Base GRATIS</p>
+                <small>Valor: $239.88/año • Acceso completo a Strata</small>
+            </div>
+
+            <form id="embajadorForm">
+                <div class="form-group">
+                    <label>Nombre completo <span class="required">*</span></label>
+                    <input type="text" id="nombre" name="nombre" required placeholder="Ej: Ing. Carlos Mendoza García">
+                </div>
+
+                <div class="form-group">
+                    <label>Email <span class="required">*</span></label>
+                    <input type="email" id="email" name="email" required placeholder="tu@email.com">
+                </div>
+
+                <div class="form-group">
+                    <label>Teléfono / WhatsApp <span class="required">*</span></label>
+                    <input type="tel" id="telefono" name="telefono" required placeholder="+593 99 123 4567">
+                </div>
+
+                <div class="form-group">
+                    <label>Cargo / Posición <span class="required">*</span></label>
+                    <select id="cargo" name="cargo" required>
+                        <option value="">Selecciona...</option>
+                        <option value="Presidente">Presidente</option>
+                        <option value="Vicepresidente">Vicepresidente</option>
+                        <option value="Director/a">Director/a</option>
+                        <option value="Gerente General">Gerente General</option>
+                        <option value="Secretario/a">Secretario/a</option>
+                        <option value="Tesorero/a">Tesorero/a</option>
+                        <option value="Vocal">Vocal</option>
+                        <option value="Otro cargo directivo">Otro cargo directivo</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Organización <span class="required">*</span></label>
+                    <input type="text" id="organizacion" name="organizacion" required placeholder="Ej: Colegio de Ingenieros Civiles de Pichincha">
+                </div>
+
+                <div class="form-group">
+                    <label>Tipo de organización <span class="required">*</span></label>
+                    <select id="tipo_org" name="tipo_org" required>
+                        <option value="">Selecciona...</option>
+                        <option value="Colegio Profesional">Colegio Profesional</option>
+                        <option value="Cámara de Comercio/Construcción">Cámara de Comercio/Construcción</option>
+                        <option value="Asociación Gremial">Asociación Gremial</option>
+                        <option value="Universidad">Universidad</option>
+                        <option value="Empresa Privada">Empresa Privada</option>
+                        <option value="Otro">Otro</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Profesión / Sector <span class="required">*</span></label>
+                    <input type="text" id="profesion" name="profesion" required placeholder="Ej: Ingeniería Civil, Derecho, Medicina">
+                </div>
+
+                <div class="form-group">
+                    <label>Número de miembros/empleados aproximado</label>
+                    <input type="number" id="num_miembros" name="num_miembros" placeholder="Ej: 250" min="1">
+                </div>
+
+                <div class="form-group">
+                    <label>Ciudad</label>
+                    <input type="text" id="ciudad" name="ciudad" placeholder="Ej: Quito, Ecuador">
+                </div>
+
+                <div class="form-group">
+                    <label>¿Cómo planeas promover Strata entre tus miembros?</label>
+                    <textarea id="plan_promocion" name="plan_promocion" placeholder="Ej: Email a todos los agremiados, presentación en asamblea mensual, etc."></textarea>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="acepto" name="acepto" required>
+                    <label for="acepto">
+                        Acepto ser <strong>Embajador Oficial de Strata</strong> y comprometerme a promover la plataforma entre los miembros de mi organización. Entiendo que recibiré el Plan Base gratuito ($19.99/mes) mientras mantenga mi rol activo como embajador.
+                    </label>
+                </div>
+
+                <div id="errorMessage" class="error-message hidden"></div>
+
+                <button type="submit" id="submitBtn">
+                    <span id="btnText">🚀 Activar Mi Cuenta de Embajador</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- PANTALLA DE ÉXITO -->
+        <div id="successScreen" class="success-screen hidden">
+            <div class="checkmark">
+                <svg viewBox="0 0 52 52">
+                    <path d="M14 27l7.8 7.8 16-16" />
+                </svg>
+            </div>
+
+            <h3>¡Registro Exitoso! ✨</h3>
+
+            <p>
+                <strong>¡Bienvenido al programa de Embajadores Strata!</strong>
+            </p>
+
+            <p style="margin-top: 20px;">
+                Tu solicitud ha sido enviada correctamente.<br>
+                Hemos enviado una copia a tu email: <strong id="emailConfirm"></strong>
+            </p>
+
+            <div class="credentials-box">
+                <h4>
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0110 0v4"></path>
+                    </svg>
+                    📧 Próximos Pasos
+                </h4>
+                <p>
+                    ✅ Recibirás un email de confirmación en las próximas 24-48 horas<br>
+                    ✅ Incluirá tus credenciales de acceso al Plan Base GRATIS<br>
+                    ✅ Usuario y contraseña para ingresar a Strata<br>
+                    ✅ Material promocional para compartir
+                </p>
+            </div>
+
+            <p style="margin-top: 25px; font-size: 13px; color: #999;">
+                <strong>¿No ves el email?</strong> Revisa tu carpeta de spam/correo no deseado
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURACIÓN EMAILJS - REEMPLAZA ESTOS VALORES
+        const EMAILJS_PUBLIC_KEY = 'TU_PUBLIC_KEY';  // Reemplazar
+        const EMAILJS_SERVICE_ID = 'TU_SERVICE_ID';  // Reemplazar
+        const EMAILJS_TEMPLATE_ID = 'template_ey4zk1v';
+
+        // Obtener tracking ID de la URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const trackingId = urlParams.get('id') || 'direct_' + Date.now();
+
+        // Inicializar EmailJS
+        emailjs.init(EMAILJS_PUBLIC_KEY);
+
+        // Manejar envío del formulario
+        document.getElementById('embajadorForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('submitBtn');
+            const btnText = document.getElementById('btnText');
+            const errorDiv = document.getElementById('errorMessage');
+
+            // Deshabilitar botón y mostrar loading
+            submitBtn.disabled = true;
+            btnText.innerHTML = '<span class="spinner"></span> Enviando...';
+            errorDiv.classList.add('hidden');
+
+            try {
+                // Preparar datos del formulario
+                const formData = {
+                    nombre: document.getElementById('nombre').value,
+                    email: document.getElementById('email').value,
+                    telefono: document.getElementById('telefono').value,
+                    cargo: document.getElementById('cargo').value,
+                    organizacion: document.getElementById('organizacion').value,
+                    tipo_org: document.getElementById('tipo_org').value,
+                    profesion: document.getElementById('profesion').value,
+                    num_miembros: document.getElementById('num_miembros').value || 'No especificado',
+                    ciudad: document.getElementById('ciudad').value || 'No especificada',
+                    plan_promocion: document.getElementById('plan_promocion').value || 'No especificado',
+                    tracking_id: trackingId,
+                    fecha: new Date().toLocaleString('es-EC', {
+                        dateStyle: 'full',
+                        timeStyle: 'short',
+                        timeZone: 'America/Guayaquil'
+                    })
+                };
+
+                // 1. Enviar email con EmailJS
+                console.log('Enviando email con EmailJS...');
+                await emailjs.send(
+                    EMAILJS_SERVICE_ID,
+                    EMAILJS_TEMPLATE_ID,
+                    formData
+                );
+                console.log('✅ Email enviado exitosamente');
+
+                // 2. Guardar en CSV del servidor (opcional - para dashboard)
+                try {
+                    const formDataForServer = new FormData();
+                    Object.keys(formData).forEach(key => {
+                        formDataForServer.append(key, formData[key]);
+                    });
+
+                    await fetch('/submit-embajador', {
+                        method: 'POST',
+                        body: formDataForServer
+                    });
+                    console.log('✅ Datos guardados en servidor');
+                } catch (serverError) {
+                    console.warn('⚠️ Error guardando en servidor (no crítico):', serverError);
+                }
+
+                // 3. Mostrar pantalla de éxito
+                document.getElementById('emailConfirm').textContent = formData.email;
+                document.getElementById('formulario').classList.add('hidden');
+                document.getElementById('successScreen').classList.remove('hidden');
+
+            } catch (error) {
+                console.error('❌ Error:', error);
+
+                // Mostrar error al usuario
+                errorDiv.textContent = '❌ Hubo un error al enviar el formulario. Por favor, intenta de nuevo o contacta a soporte@h3l.ai';
+                errorDiv.classList.remove('hidden');
+
+                // Rehabilitar botón
+                submitBtn.disabled = false;
+                btnText.innerHTML = '🚀 Activar Mi Cuenta de Embajador';
+            }
+        });
+    </script>
+</body>
+</html>
