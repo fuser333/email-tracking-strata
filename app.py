@@ -9,8 +9,19 @@ from datetime import datetime
 import csv
 import os
 from io import BytesIO
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 app = Flask(__name__)
+
+# Configuración SMTP (usar variables de entorno en producción)
+SMTP_SERVER = os.getenv('SMTP_SERVER', 'mail.spacemail.com')
+SMTP_PORT = int(os.getenv('SMTP_PORT', '465'))
+SMTP_USER = os.getenv('SMTP_USER', 'ceo@h3l.ai')
+SMTP_PASSWORD = os.getenv('SMTP_PASSWORD', 'dexfan-zinhyW-2quxba')
+NOTIFY_EMAIL = os.getenv('NOTIFY_EMAIL', 'info@h3l.ai')
+FROM_EMAIL = os.getenv('FROM_EMAIL', 'ceo@h3l.ai')
 
 # Archivo para guardar submissions
 SUBMISSIONS_FILE = 'embajadores_strata.csv'
@@ -31,6 +42,112 @@ TRACKING_PIXEL = BytesIO(
     b'\xff\xff\xff\x21\xf9\x04\x01\x00\x00\x00\x00\x2c\x00\x00\x00\x00'
     b'\x01\x00\x01\x00\x00\x02\x02\x44\x01\x00\x3b'
 )
+
+def enviar_notificacion_embajador(data):
+    """Envía email a info@h3l.ai cuando alguien llena el formulario"""
+    try:
+        # Crear mensaje HTML
+        html_body = f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+    <div style="max-width: 600px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #3B82F6, #A855F7); border-radius: 10px;">
+        <h1 style="color: #fff; text-align: center; margin-bottom: 20px;">🎁 Nuevo Embajador Strata</h1>
+    </div>
+
+    <div style="max-width: 600px; margin: 20px auto; padding: 30px; background: #fff; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <h2 style="color: #3B82F6; border-bottom: 3px solid #A855F7; padding-bottom: 10px;">Información del Embajador</h2>
+
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+            <tr>
+                <td style="padding: 10px; font-weight: bold; background: #f0f9ff; width: 40%;">Nombre:</td>
+                <td style="padding: 10px; background: #f9fafb;">{data.get('nombre', 'N/A')}</td>
+            </tr>
+            <tr>
+                <td style="padding: 10px; font-weight: bold; background: #f0f9ff;">Email:</td>
+                <td style="padding: 10px; background: #f9fafb;"><a href="mailto:{data.get('email', '')}" style="color: #3B82F6;">{data.get('email', 'N/A')}</a></td>
+            </tr>
+            <tr>
+                <td style="padding: 10px; font-weight: bold; background: #f0f9ff;">Teléfono:</td>
+                <td style="padding: 10px; background: #f9fafb;">{data.get('telefono', 'N/A')}</td>
+            </tr>
+            <tr>
+                <td style="padding: 10px; font-weight: bold; background: #f0f9ff;">Cargo:</td>
+                <td style="padding: 10px; background: #f9fafb;">{data.get('cargo', 'N/A')}</td>
+            </tr>
+            <tr>
+                <td style="padding: 10px; font-weight: bold; background: #f0f9ff;">Organización:</td>
+                <td style="padding: 10px; background: #f9fafb;"><strong>{data.get('organizacion', 'N/A')}</strong></td>
+            </tr>
+            <tr>
+                <td style="padding: 10px; font-weight: bold; background: #f0f9ff;">Tipo:</td>
+                <td style="padding: 10px; background: #f9fafb;">{data.get('tipo_org', 'N/A')}</td>
+            </tr>
+            <tr>
+                <td style="padding: 10px; font-weight: bold; background: #f0f9ff;">Profesión/Sector:</td>
+                <td style="padding: 10px; background: #f9fafb;">{data.get('profesion', 'N/A')}</td>
+            </tr>
+            <tr>
+                <td style="padding: 10px; font-weight: bold; background: #f0f9ff;">Nº Miembros:</td>
+                <td style="padding: 10px; background: #f9fafb;">{data.get('num_miembros', 'N/A')}</td>
+            </tr>
+            <tr>
+                <td style="padding: 10px; font-weight: bold; background: #f0f9ff;">Ciudad:</td>
+                <td style="padding: 10px; background: #f9fafb;">{data.get('ciudad', 'N/A')}</td>
+            </tr>
+        </table>
+
+        <div style="margin-top: 30px; padding: 20px; background: #ecfdf5; border-left: 4px solid #059669; border-radius: 5px;">
+            <h3 style="color: #059669; margin-top: 0;">Plan de Promoción:</h3>
+            <p style="white-space: pre-wrap; color: #333;">{data.get('plan_promocion', 'No especificado')}</p>
+        </div>
+
+        <div style="margin-top: 30px; padding: 15px; background: #fef3c7; border-left: 4px solid #F59E0B; border-radius: 5px;">
+            <p style="margin: 0; color: #92400E;"><strong>Tracking ID:</strong> {data.get('tracking_id', 'N/A')}</p>
+            <p style="margin: 5px 0 0 0; color: #92400E;"><strong>Fecha:</strong> {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}</p>
+        </div>
+
+        <div style="margin-top: 30px; text-align: center;">
+            <a href="https://email-tracking-strata.onrender.com/dashboard"
+               style="display: inline-block; padding: 15px 30px; background: linear-gradient(135deg, #3B82F6, #A855F7); color: #fff; text-decoration: none; border-radius: 8px; font-weight: bold;">
+                Ver Dashboard Completo
+            </a>
+        </div>
+    </div>
+
+    <div style="max-width: 600px; margin: 20px auto; text-align: center; color: #666; font-size: 12px;">
+        <p>Email automático del sistema de tracking Strata</p>
+        <p>© 2026 H3L AI Solutions - <a href="https://strata.h3l.ai" style="color: #3B82F6;">strata.h3l.ai</a></p>
+    </div>
+</body>
+</html>
+"""
+
+        # Crear mensaje
+        msg = MIMEMultipart('alternative')
+        msg['From'] = f"Strata Embajadores <{FROM_EMAIL}>"
+        msg['To'] = NOTIFY_EMAIL
+        msg['Subject'] = f"🎁 Nuevo Embajador: {data.get('organizacion', 'Sin nombre')} - {data.get('nombre', 'Desconocido')}"
+        msg['Reply-To'] = data.get('email', FROM_EMAIL)
+
+        # Adjuntar HTML
+        msg.attach(MIMEText(html_body, 'html'))
+
+        # Enviar
+        server = smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT)
+        server.login(SMTP_USER, SMTP_PASSWORD)
+        server.sendmail(FROM_EMAIL, [NOTIFY_EMAIL], msg.as_string())
+        server.quit()
+
+        print(f"✅ Email enviado a {NOTIFY_EMAIL} - Embajador: {data.get('nombre')}")
+        return True
+
+    except Exception as e:
+        print(f"❌ Error enviando email: {e}")
+        return False
 
 @app.route('/')
 def index():
@@ -283,7 +400,7 @@ def formulario_embajador():
 def submit_embajador():
     """Guardar submission de embajador"""
     data = request.form
-    
+
     # Guardar en CSV
     with open(SUBMISSIONS_FILE, 'a', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
@@ -302,7 +419,14 @@ def submit_embajador():
             data.get('tracking_id', ''),
             request.remote_addr
         ])
-    
+
+    # Enviar notificación por email a info@h3l.ai
+    try:
+        enviar_notificacion_embajador(data)
+    except Exception as e:
+        print(f"⚠️ Error al enviar notificación: {e}")
+        # No fallar si el email no se envía, continuar normalmente
+
     # Redirigir a página de éxito
     return redirect(f'/formulario-embajador?id={data.get("tracking_id", "")}&success=1')
 
