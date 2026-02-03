@@ -25,24 +25,58 @@
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             max-width: 600px;
             width: 100%;
-            padding: 40px;
+            overflow: hidden;
             animation: slideUp 0.5s ease-out;
         }
         @keyframes slideUp {
             from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .logo { text-align: center; margin-bottom: 30px; }
-        .logo h1 {
-            font-size: 48px;
-            font-weight: 800;
-            background: linear-gradient(to right, #3B82F6, #A855F7);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            letter-spacing: -1px;
+        .header-dark {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            padding: 30px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 3px solid transparent;
+            border-image: linear-gradient(to right, #3B82F6, #A855F7, #DB2777) 1;
         }
-        .logo p { color: #666; font-size: 14px; margin-top: 8px; text-transform: uppercase; letter-spacing: 1.5px; }
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .logo-svg {
+            width: 50px;
+            height: 50px;
+        }
+        .logo-text h1 {
+            font-size: 32px;
+            font-weight: 800;
+            color: white;
+            letter-spacing: -0.5px;
+            margin: 0;
+        }
+        .logo-text p {
+            color: #94a3b8;
+            font-size: 11px;
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+        }
+        .h3l-badge {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        .form-content {
+            padding: 40px;
+        }
         h2 { color: #333; font-size: 24px; margin-bottom: 10px; text-align: center; }
         .subtitle { color: #666; text-align: center; margin-bottom: 30px; font-size: 15px; line-height: 1.6; }
         .highlight-box {
@@ -195,13 +229,33 @@
 </head>
 <body>
     <div class="container">
-        <div class="logo">
-            <h1>STRATA</h1>
-            <p>Programa Embajadores</p>
+        <!-- HEADER OSCURO CON LOGO -->
+        <div class="header-dark">
+            <div class="logo-container">
+                <svg class="logo-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:#A855F7;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#DB2777;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <path d="M100 20 L180 60 L180 140 L100 180 L20 140 L20 60 Z" fill="url(#logoGradient)" opacity="0.9"/>
+                    <circle cx="100" cy="100" r="30" fill="white" opacity="0.9"/>
+                    <path d="M85 100 L95 110 L115 85" stroke="#3B82F6" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <div class="logo-text">
+                    <h1>Strata</h1>
+                    <p>Programa Embajadores</p>
+                </div>
+            </div>
+            <div class="h3l-badge">H3L AI Solutions</div>
         </div>
 
-        <!-- FORMULARIO -->
-        <div id="formulario">
+        <!-- CONTENIDO DEL FORMULARIO -->
+        <div class="form-content">
+            <!-- FORMULARIO -->
+            <div id="formulario">
             <h2>¡Felicidades! 🎉</h2>
             <p class="subtitle">
                 Has sido seleccionado para ser <strong>Embajador Oficial de Strata</strong>.
@@ -350,6 +404,7 @@
                 <strong>¿No ves el email?</strong> Revisa tu carpeta de spam/correo no deseado
             </p>
         </div>
+        </div> <!-- Cierre form-content -->
     </div>
 
     <script>
